@@ -28,12 +28,11 @@ type uiAssetsHandler struct {
 // If path '/' is requested, it will serve the index file, otherwise it will
 // serve the file specified by the URL path.
 func (h *uiAssetsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Get the absolute path to prevent directory traversal.
-	path, err := filepath.Abs(r.URL.Path)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	// Use the URL path directly, not filesystem path
+	path := r.URL.Path
+
+	// Clean the path to prevent directory traversal
+	path = filepath.Clean(path)
 
 	// Get the path relative to the root path.
 	if !strings.HasPrefix(path, h.rootPath) {

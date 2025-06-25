@@ -35,6 +35,7 @@ type Config struct {
 	RedisClusterNodes string
 
 	// UI related configs
+	RootPath         string
 	ReadOnly         bool
 	MaxPayloadLength int
 	MaxResultLength  int
@@ -67,6 +68,7 @@ func parseFlags(progname string, args []string) (cfg *Config, output string, err
 	flags.StringVar(&conf.RedisURL, "redis-url", getEnvDefaultString("REDIS_URL", ""), "URL to redis server")
 	flags.BoolVar(&conf.RedisInsecureTLS, "redis-insecure-tls", getEnvOrDefaultBool("REDIS_INSECURE_TLS", false), "disable TLS certificate host checks")
 	flags.StringVar(&conf.RedisClusterNodes, "redis-cluster-nodes", getEnvDefaultString("REDIS_CLUSTER_NODES", ""), "comma separated list of host:port addresses of cluster nodes")
+	flags.StringVar(&conf.RootPath, "root-path", getEnvDefaultString("ROOT_PATH", ""), "root URL path for asynqmon app (e.g., '/asynqmon' for reverse proxy)")
 	flags.IntVar(&conf.MaxPayloadLength, "max-payload-length", getEnvOrDefaultInt("MAX_PAYLOAD_LENGTH", 200), "maximum number of utf8 characters printed in the payload cell in the Web UI")
 	flags.IntVar(&conf.MaxResultLength, "max-result-length", getEnvOrDefaultInt("MAX_RESULT_LENGTH", 200), "maximum number of utf8 characters printed in the result cell in the Web UI")
 	flags.BoolVar(&conf.EnableMetricsExporter, "enable-metrics-exporter", getEnvOrDefaultBool("ENABLE_METRICS_EXPORTER", false), "enable prometheus metrics exporter to expose queue metrics")
@@ -148,6 +150,7 @@ func main() {
 	}
 
 	h := asynqmon.New(asynqmon.Options{
+		RootPath:          cfg.RootPath,
 		RedisConnOpt:      redisConnOpt,
 		PayloadFormatter:  asynqmon.PayloadFormatterFunc(payloadFormatterFunc(cfg)),
 		ResultFormatter:   asynqmon.ResultFormatterFunc(resultFormatterFunc(cfg)),
